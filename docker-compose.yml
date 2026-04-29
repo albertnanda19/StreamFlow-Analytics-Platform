@@ -11,7 +11,14 @@ x-airflow-common: &airflow-common
     AIRFLOW__CELERY__RESULT_BACKEND: ${AIRFLOW__CELERY__RESULT_BACKEND}
     AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW__CORE__FERNET_KEY}
     AIRFLOW__WEBSERVER__SECRET_KEY: ${AIRFLOW__WEBSERVER__SECRET_KEY}
-    AIRFLOW__CORE__LOAD_EXAMPLES: ${AIRFLOW__CORE__LOAD_EXAMPLES}
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CORE__DEFAULT_TIMEZONE: Asia/Jakarta
+    AIRFLOW__CORE__MAX_ACTIVE_RUNS_PER_DAG: "1"
+    AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: "30"
+    AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: Asia/Jakarta
+    AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com
+    AIRFLOW__SMTP__SMTP_PORT: "587"
+    AIRFLOW__SMTP__SMTP_STARTTLS: "True"
     KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
     SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
     MINIO_ENDPOINT: ${MINIO_ENDPOINT}
@@ -28,9 +35,13 @@ x-airflow-common: &airflow-common
     CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
     CLICKHOUSE_DB: ${CLICKHOUSE_DB}
     SPARK_MASTER_URL: ${SPARK_MASTER_URL}
+    SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-""}
+    DBT_PROJECT_DIR: /opt/airflow/dbt_project
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/plugins:/opt/airflow/plugins
+    - ./airflow/scripts:/opt/airflow/scripts
+    - ./dbt_project:/opt/airflow/dbt_project
     - airflow-logs:/opt/airflow/logs
   networks:
     - streamflow-network
