@@ -1,0 +1,21 @@
+category,subcategory,display_name,is_active
+Electronics,Smartphone,Smartphones & Tablets,true
+Electronics,Laptop,Laptops & Computers,true
+Electronics,Audio,Headphones & Speakers,true
+Electronics,Wearable,Smartwatches & Fitness,true
+Electronics,Camera,Cameras & Photography,true
+Fashion,Footwear,Shoes & Sandals,true
+Fashion,Tops,T-Shirts & Shirts,true
+Fashion,Outerwear,Jackets & Coats,true
+Fashion,Traditional,Batik & Kebaya,true
+Fashion,Accessories,Bags & Belts,true
+Sports,Equipment,Sports Equipment,true
+Sports,Clothing,Sports Apparel,true
+Sports,Outdoor,Camping & Hiking,true
+Kitchen,Appliances,Kitchen Appliances,true
+Kitchen,Cookware,Pots & Pans,true
+Kitchen,Utensils,Kitchen Tools,true
+Furniture,Seating,Chairs & Sofas,true
+Furniture,Storage,Shelves & Cabinets,true
+Beauty,Skincare,Skincare & Moisturizers,true
+Beauty,Makeup,Cosmetics & Makeup,true

@@ -1,0 +1,21 @@
+city,province,region,postal_code_prefix
+Jakarta Selatan,DKI Jakarta,Jawa,12
+Jakarta Pusat,DKI Jakarta,Jawa,10
+Jakarta Barat,DKI Jakarta,Jawa,11
+Jakarta Timur,DKI Jakarta,Jawa,13
+Jakarta Utara,DKI Jakarta,Jawa,14
+Bandung,Jawa Barat,Jawa,40
+Surabaya,Jawa Timur,Jawa,60
+Yogyakarta,DI Yogyakarta,Jawa,55
+Semarang,Jawa Tengah,Jawa,50
+Malang,Jawa Timur,Jawa,65
+Bekasi,Jawa Barat,Jawa,17
+Tangerang,Banten,Jawa,15
+Depok,Jawa Barat,Jawa,16
+Bogor,Jawa Barat,Jawa,16
+Medan,Sumatera Utara,Sumatera,20
+Palembang,Sumatera Selatan,Sumatera,30
+Pekanbaru,Riau,Sumatera,28
+Batam,Kepulauan Riau,Sumatera,29
+Makassar,Sulawesi Selatan,Sulawesi,90
+Denpasar,Bali,Bali,80

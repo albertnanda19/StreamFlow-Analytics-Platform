@@ -1,31 +1,49 @@
-name: streamflow_dbt
-version: "1.0"
+name: streamflow
+version: "1.0.0"
 config-version: 2
 
 profile: streamflow
 
-model-paths: ["models"]
-test-paths:  ["tests"]
-macro-paths: ["macros"]
-
-target-path: "target"
-clean-targets: ["target", "dbt_packages"]
+model-paths:    ["models"]
+test-paths:     ["tests"]
+seed-paths:     ["seeds"]
+macro-paths:    ["macros"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analyses"]
+target-path:    "target"
+clean-targets:  ["target", "dbt_packages"]
 
 vars:
-  bronze_schema: bronze
-  silver_schema: silver
-  gold_schema:   gold
+  high_value_order_threshold: 500000
+  low_stock_threshold: 10
+  rfm_lookback_days: 90
+  incremental_lookback_hours: 3
 
 models:
-  streamflow_dbt:
+  streamflow:
     bronze:
-      +schema:      bronze
       +materialized: incremental
-      +on_schema_change: append_new_columns
+      +tags: ["bronze"]
     silver:
-      +schema:      silver
       +materialized: incremental
-      +on_schema_change: append_new_columns
+      +tags: ["silver"]
+      +schema: silver
     gold:
-      +schema:      gold
       +materialized: table
+      +tags: ["gold"]
+      +schema: gold
+    marts:
+      +materialized: table
+      +tags: ["mart"]
+      +schema: mart
+
+seeds:
+  streamflow:
+    +schema: seeds
+
+snapshots:
+  streamflow:
+    +schema: snapshots
+    +strategy: timestamp
+    +unique_key: id
+    +updated_at: updated_at

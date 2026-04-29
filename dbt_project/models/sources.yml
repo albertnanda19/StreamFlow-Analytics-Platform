@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+
+  - name: bronze
+    description: Raw Delta Lake tables written by PySpark Structured Streaming
+    schema: bronze
+    loaded_at_field: ingestion_timestamp
+    freshness:
+      warn_after:  {count: 2,  period: hour}
+      error_after: {count: 6,  period: hour}
+    tables:
+      - name: orders
+        description: Raw order placement events from Kafka topic 'orders'
+        columns:
+          - name: order_id
+            description: UUID of the order
+          - name: user_id
+            description: UUID of the user who placed the order
+          - name: event_timestamp
+            description: Epoch-millisecond timestamp of the event
+          - name: ingestion_timestamp
+            description: Timestamp when Spark wrote the record to Bronze
+          - name: is_valid
+            description: False when required fields are missing or invalid
+      - name: pageviews
+        description: Raw pageview events from Kafka topic 'pageviews'
+        columns:
+          - name: event_id
+            description: UUID of the pageview event
+          - name: session_id
+            description: Browser session identifier
+          - name: ingestion_timestamp
+            description: Timestamp when Spark wrote the record to Bronze
+      - name: inventory_state
+        description: Inventory change events from Kafka topic 'inventory'
+        loaded_at_field: ingestion_timestamp
+        columns:
+          - name: event_id
+            description: UUID of the inventory event
+          - name: product_id
+            description: Product affected by the change
+
+  - name: postgres_source
+    description: OLTP source tables from PostgreSQL via Debezium CDC or direct query
+    schema: public
+    tables:
+      - name: users
+        description: Registered user accounts
+        columns:
+          - name: user_id
+            description: UUID primary key
+          - name: email
+            description: User email address (PII)
+          - name: segment
+            description: Marketing segment classification
+      - name: products
+        description: Product catalogue
+        columns:
+          - name: product_id
+            description: UUID primary key
+          - name: price
+            description: Current list price in IDR
+          - name: stock_quantity
+            description: Current inventory quantity
+      - name: orders
+        description: OLTP order records (CDC source for Debezium)
+        columns:
+          - name: order_id
+            description: UUID primary key

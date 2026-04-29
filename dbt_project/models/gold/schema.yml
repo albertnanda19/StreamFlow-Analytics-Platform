@@ -1,0 +1,104 @@
+version: 2
+
+models:
+  - name: gold_daily_revenue
+    description: >
+      Daily revenue aggregation with DoD growth rate, 7-day and 30-day rolling averages,
+      and 90-day revenue rank. Refreshed as a full table daily.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+    columns:
+      - name: revenue_date
+        description: Calendar date of the revenue
+        tests:
+          - not_null
+          - unique
+      - name: total_revenue
+        description: Sum of all order total_amount for the day
+        tests:
+          - not_null
+      - name: order_count
+        description: Number of distinct orders placed
+        tests:
+          - not_null
+      - name: dod_growth_pct
+        description: Day-over-day revenue growth percentage (safe divide — 0 if no prior day)
+      - name: revenue_7d_avg
+        description: 7-day rolling average revenue
+      - name: row_count_check
+        description: Data quality flag — false indicates no orders processed
+
+  - name: gold_product_performance
+    description: >
+      Per-product performance metrics across three time windows (7d, 30d, all-time)
+      with inventory turnover, return rate, and stock status.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+    columns:
+      - name: product_id
+        description: UUID of the product — unique key
+        tests:
+          - not_null
+          - unique
+      - name: stock_status
+        description: Current stock classification
+        tests:
+          - accepted_values:
+              values: [IN_STOCK, LOW_STOCK, OUT_OF_STOCK]
+      - name: revenue_contribution_pct
+        description: Product's share of total 30-day revenue
+
+  - name: gold_user_segments
+    description: >
+      RFM (Recency, Frequency, Monetary) segmentation of all users
+      who placed at least one order in the last 90 days.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: pii
+    columns:
+      - name: user_id
+        description: UUID of the user — unique key
+        tests:
+          - not_null
+          - unique
+      - name: segment
+        description: Business segment label derived from RFM scores
+        tests:
+          - not_null
+          - accepted_values:
+              values: [Champions, Loyal Customers, At Risk, Lost, New Customers, Potential, Others]
+      - name: rfm_score
+        description: Three-digit concatenated RFM score (e.g. '555' = Champion)
+        tests:
+          - not_null
+      - name: r_score
+        description: Recency score 1-5 (5 = most recent)
+      - name: f_score
+        description: Frequency score 1-5 (5 = most orders)
+      - name: m_score
+        description: Monetary score 1-5 (5 = highest spend)
+
+  - name: gold_conversion_funnel
+    description: >
+      Daily conversion funnel per acquisition channel (utm_source).
+      Tracks session drop-off at each stage: product view → cart → checkout → purchase.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+    columns:
+      - name: session_date
+        description: Calendar date of the sessions
+        tests:
+          - not_null
+      - name: channel
+        description: Acquisition channel (utm_source or 'direct')
+        tests:
+          - not_null
+      - name: overall_conversion_rate
+        description: sessions_converted / sessions_total (zero-safe)

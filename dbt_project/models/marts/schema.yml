@@ -1,0 +1,57 @@
+version: 2
+
+models:
+  - name: mart_executive_summary
+    description: >
+      Single-row executive KPI snapshot for the current day.
+      Powers the C-suite Grafana dashboard. Refreshed as a full table.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+      docs:
+        show: true
+    columns:
+      - name: summary_date
+        description: The calendar date this summary represents
+        tests:
+          - not_null
+      - name: today_revenue
+        description: Total revenue from today's orders
+      - name: today_orders
+        description: Count of orders placed today
+      - name: mtd_revenue
+        description: Month-to-date cumulative revenue
+      - name: ytd_revenue
+        description: Year-to-date cumulative revenue
+      - name: today_conversion_rate
+        description: Overall session-to-purchase conversion rate for today
+
+  - name: mart_product_recommendations
+    description: >
+      Frequently bought together product pairs.
+      Built using market basket analysis (self-join on order_id).
+      Minimum 10 co-occurrences and > 10% confidence threshold.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+      docs:
+        show: true
+    columns:
+      - name: product_id_a
+        description: First product in the pair (lexicographically smaller UUID)
+        tests:
+          - not_null
+      - name: product_id_b
+        description: Second product in the pair
+        tests:
+          - not_null
+      - name: co_occurrence_count
+        description: Number of orders containing both products
+        tests:
+          - not_null
+      - name: confidence_a_to_b
+        description: P(B|A) — probability of buying B given A was purchased
+      - name: confidence_b_to_a
+        description: P(A|B) — probability of buying A given B was purchased

@@ -1,0 +1,175 @@
+version: 2
+
+models:
+  - name: silver_orders
+    description: >
+      Deduplicated, validated, and user-enriched order events from the Bronze layer.
+      Each row represents a unique order placement event.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: pii
+    columns:
+      - name: order_id
+        description: UUID of the order — unique key
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        description: UUID of the purchasing user
+        tests:
+          - not_null
+      - name: event_timestamp
+        description: Timestamp when the order was placed
+        tests:
+          - not_null
+      - name: payment_method
+        description: Standardised (uppercase) payment method
+        tests:
+          - not_null
+          - accepted_values:
+              values: [CREDIT_CARD, DEBIT_CARD, BANK_TRANSFER, EWALLET, COD]
+      - name: total_amount
+        description: Full order value in IDR including shipping
+        tests:
+          - not_null
+      - name: device_type
+        description: Device used to place the order
+        tests:
+          - accepted_values:
+              values: [MOBILE, DESKTOP, TABLET]
+      - name: device_category
+        description: Simplified device group — MOBILE vs NON-MOBILE
+        tests:
+          - accepted_values:
+              values: [MOBILE, NON-MOBILE]
+      - name: is_valid
+        description: Inherited validity flag from Bronze
+        tests:
+          - not_null
+      - name: is_high_value
+        description: True if total_amount exceeds IDR 500,000
+      - name: gross_revenue
+        description: Revenue after subtracting shipping fee
+      - name: dbt_updated_at
+        description: Timestamp when this record was last processed by dbt
+
+  - name: silver_order_items
+    description: >
+      Exploded order item rows — one row per product per order.
+      Enriched with product catalogue data.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+    columns:
+      - name: item_id
+        description: Surrogate key — MD5(order_id + product_id + item_index)
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        description: Foreign key to silver_orders
+        tests:
+          - not_null
+          - relationships:
+              to: ref('silver_orders')
+              field: order_id
+      - name: product_id
+        description: UUID of the product
+        tests:
+          - not_null
+      - name: quantity
+        description: Number of units purchased
+        tests:
+          - not_null
+      - name: item_revenue
+        description: Revenue = quantity * unit_price * (1 - discount_pct)
+        tests:
+          - not_null
+
+  - name: silver_pageviews
+    description: >
+      Cleaned and enriched pageview events with session sequencing,
+      UTM parameters, and privacy-masked IP addresses.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: pii
+    columns:
+      - name: event_id
+        description: UUID of the pageview event — unique key
+        tests:
+          - not_null
+          - unique
+      - name: session_id
+        description: Browser session identifier
+        tests:
+          - not_null
+      - name: page_type
+        description: Standardised page category
+        tests:
+          - not_null
+          - accepted_values:
+              values: [HOME, CATEGORY, PRODUCT_DETAIL, CART, CHECKOUT, ORDER_CONFIRMATION, SEARCH, PROFILE]
+      - name: session_sequence_number
+        description: Rank of this pageview within its session (1 = entry page)
+        tests:
+          - not_null
+      - name: is_entry_page
+        description: True if this is the first pageview in the session
+      - name: is_bounce
+        description: True if the session contained only this single pageview
+
+  - name: silver_sessions
+    description: >
+      Session-level aggregation of pageview events.
+      One row per session with conversion flag and page journey arrays.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: pii
+    columns:
+      - name: session_id
+        description: Unique session identifier
+        tests:
+          - not_null
+          - unique
+      - name: session_start
+        description: Timestamp of the first pageview in the session
+        tests:
+          - not_null
+      - name: page_count
+        description: Total number of pageviews in the session
+        tests:
+          - not_null
+      - name: has_converted
+        description: True if the session resulted in a completed order
+
+  - name: silver_inventory
+    description: >
+      Cleaned inventory change events with running stock quantity,
+      low-stock and stock-out flags, and product enrichment.
+    meta:
+      owner: data-team
+      domain: ecommerce
+      sensitivity: none
+    columns:
+      - name: event_id
+        description: UUID of the inventory event — unique key
+        tests:
+          - not_null
+          - unique
+      - name: product_id
+        description: Product affected by this change
+        tests:
+          - not_null
+      - name: change_reason
+        description: Reason for the inventory change
+        tests:
+          - accepted_values:
+              values: [SALE, RESTOCK, ADJUSTMENT, RETURN, DAMAGE]
+      - name: running_quantity
+        description: Cumulative stock level after this event
+        tests:
+          - not_null
