@@ -227,14 +227,56 @@ producer-local:
 		python main.py --eps $(EPS) --mode $(if $(MODE),$(MODE),normal) \
 		$(if $(DURATION),--duration $(DURATION),)
 
-run-spark-streaming:
-	@echo "Submitting Spark Structured Streaming job..."
-	$(DOCKER_COMPOSE) exec spark-master spark-submit \
-		--master spark://spark-master:7077 \
-		--packages io.delta:delta-spark_2.12:3.0.0 \
-		--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
-		--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
-		/opt/spark_jobs/streaming/orders_stream.py
+SPARK_PACKAGES := io.delta:delta-spark_2.12:3.0.0,\
+org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,\
+org.apache.hadoop:hadoop-aws:3.3.4,\
+com.amazonaws:aws-java-sdk-bundle:1.12.540,\
+com.clickhouse:clickhouse-jdbc:0.6.0,\
+org.apache.spark:spark-avro_2.12:3.5.0
+
+SPARK_SUBMIT_FLAGS := \
+	--master spark://spark-master:7077 \
+	--packages $(SPARK_PACKAGES) \
+	--conf "spark.driver.extraJavaOptions=-Divy.cache.dir=/tmp -Divy.home=/tmp" \
+	--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+	--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+	--conf spark.hadoop.fs.s3a.endpoint=$(MINIO_ENDPOINT) \
+	--conf spark.hadoop.fs.s3a.access.key=$(AWS_ACCESS_KEY_ID) \
+	--conf spark.hadoop.fs.s3a.secret.key=$(AWS_SECRET_ACCESS_KEY) \
+	--conf spark.hadoop.fs.s3a.path.style.access=true \
+	--conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem \
+	--conf spark.hadoop.fs.s3a.connection.ssl.enabled=false \
+	--py-files /opt/spark_jobs/utils/avro_deserializer.py,/opt/spark_jobs/config/schemas.py,/opt/spark_jobs/utils/metrics_reporter.py
+
+run-spark-streaming: run-orders-bronze
+
+run-orders-bronze:
+	@echo "Submitting orders_to_bronze streaming job..."
+	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+		$(SPARK_SUBMIT_FLAGS) \
+		/opt/spark_jobs/streaming/orders_to_bronze.py
+
+run-pageviews-bronze:
+	@echo "Submitting pageviews_to_bronze streaming job..."
+	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+		$(SPARK_SUBMIT_FLAGS) \
+		/opt/spark_jobs/streaming/pageviews_to_bronze.py
+
+run-realtime-metrics:
+	@echo "Submitting realtime_metrics streaming job..."
+	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+		$(SPARK_SUBMIT_FLAGS) \
+		/opt/spark_jobs/streaming/realtime_metrics.py
+
+run-inventory-tracker:
+	@echo "Submitting inventory_tracker streaming job..."
+	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+		$(SPARK_SUBMIT_FLAGS) \
+		/opt/spark_jobs/streaming/inventory_tracker.py
+
+run-all-spark:
+	@echo "Submitting all 4 Spark streaming jobs..."
+	$(DOCKER_COMPOSE) exec spark-master bash /opt/spark_jobs/submit/submit_all.sh
 
 run-dbt:
 	@echo "Running dbt transformations..."
