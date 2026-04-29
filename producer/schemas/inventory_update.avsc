@@ -1,0 +1,29 @@
+{
+  "type": "record",
+  "name": "InventoryUpdate",
+  "namespace": "io.streamflow.events",
+  "doc": "Fired on any warehouse inventory change",
+  "fields": [
+    {"name": "event_id",           "type": "string"},
+    {"name": "event_type",         "type": "string", "doc": "Always 'inventory_update'"},
+    {"name": "event_timestamp",    "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "product_id",         "type": "string"},
+    {"name": "warehouse_id",       "type": "string"},
+    {"name": "previous_quantity",  "type": "int"},
+    {"name": "new_quantity",       "type": "int"},
+    {
+      "name": "change_reason",
+      "type": {
+        "type": "enum",
+        "name": "InventoryChangeReason",
+        "symbols": ["SALE", "RESTOCK", "ADJUSTMENT", "RETURN", "DAMAGE"]
+      }
+    },
+    {"name": "reference_id", "type": ["null", "string"], "default": null, "doc": "order_id for SALE, PO number for RESTOCK"},
+    {
+      "name": "metadata",
+      "type": {"type": "map", "values": "string"},
+      "default": {}
+    }
+  ]
+}

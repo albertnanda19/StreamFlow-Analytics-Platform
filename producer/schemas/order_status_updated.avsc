@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "OrderStatusUpdated",
+  "namespace": "io.streamflow.events",
+  "doc": "Fired when an order's status changes",
+  "fields": [
+    {"name": "event_id",        "type": "string"},
+    {"name": "event_type",      "type": "string",  "doc": "Always 'order_status_updated'"},
+    {"name": "event_timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "order_id",        "type": "string"},
+    {"name": "user_id",         "type": "string"},
+    {
+      "name": "previous_status",
+      "type": {
+        "type": "enum",
+        "name": "OrderStatus",
+        "symbols": ["PENDING", "CONFIRMED", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED", "REFUNDED"]
+      }
+    },
+    {
+      "name": "new_status",
+      "type": "OrderStatus"
+    },
+    {"name": "updated_by", "type": "string", "doc": "System identifier or user ID"},
+    {"name": "reason",     "type": ["null", "string"], "default": null},
+    {
+      "name": "metadata",
+      "type": {"type": "map", "values": "string"},
+      "default": {}
+    }
+  ]
+}

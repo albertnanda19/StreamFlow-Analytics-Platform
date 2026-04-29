@@ -1,0 +1,78 @@
+{
+  "type": "record",
+  "name": "OrderPlaced",
+  "namespace": "io.streamflow.events",
+  "doc": "Fired when a customer places a new order",
+  "fields": [
+    {"name": "event_id",        "type": "string",  "doc": "UUID v4 event identifier"},
+    {"name": "event_type",      "type": "string",  "doc": "Always 'order_placed'"},
+    {"name": "event_timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}, "doc": "Event creation time in epoch-millis"},
+    {"name": "order_id",        "type": "string"},
+    {"name": "user_id",         "type": "string"},
+    {"name": "session_id",      "type": "string"},
+    {
+      "name": "items",
+      "type": {
+        "type": "array",
+        "items": {
+          "type": "record",
+          "name": "OrderItem",
+          "fields": [
+            {"name": "product_id",   "type": "string"},
+            {"name": "product_name", "type": "string"},
+            {"name": "category",     "type": "string"},
+            {"name": "quantity",     "type": "int"},
+            {"name": "unit_price",   "type": "double"},
+            {"name": "discount_pct", "type": "float", "doc": "0.0 to 1.0"}
+          ]
+        }
+      }
+    },
+    {"name": "subtotal",      "type": "double"},
+    {"name": "shipping_fee",  "type": "double"},
+    {"name": "total_amount",  "type": "double"},
+    {
+      "name": "payment_method",
+      "type": {
+        "type": "enum",
+        "name": "PaymentMethod",
+        "symbols": ["CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "EWALLET", "COD"]
+      }
+    },
+    {
+      "name": "shipping_address",
+      "type": {
+        "type": "record",
+        "name": "ShippingAddress",
+        "fields": [
+          {"name": "city",        "type": "string"},
+          {"name": "province",    "type": "string"},
+          {"name": "country",     "type": "string"},
+          {"name": "postal_code", "type": "string"}
+        ]
+      }
+    },
+    {
+      "name": "device_type",
+      "type": {
+        "type": "enum",
+        "name": "DeviceType",
+        "symbols": ["MOBILE", "DESKTOP", "TABLET"]
+      }
+    },
+    {
+      "name": "platform",
+      "type": {
+        "type": "enum",
+        "name": "Platform",
+        "symbols": ["IOS", "ANDROID", "WEB"]
+      }
+    },
+    {"name": "coupon_code", "type": ["null", "string"], "default": null},
+    {
+      "name": "metadata",
+      "type": {"type": "map", "values": "string"},
+      "default": {}
+    }
+  ]
+}

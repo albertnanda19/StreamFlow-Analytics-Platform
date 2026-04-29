@@ -1,0 +1,41 @@
+{
+  "type": "record",
+  "name": "Pageview",
+  "namespace": "io.streamflow.events",
+  "doc": "Fired on every page navigation, supports anonymous sessions",
+  "fields": [
+    {"name": "event_id",        "type": "string"},
+    {"name": "event_type",      "type": "string", "doc": "Always 'pageview'"},
+    {"name": "event_timestamp", "type": {"type": "long", "logicalType": "timestamp-millis"}},
+    {"name": "session_id",      "type": "string"},
+    {"name": "user_id",         "type": ["null", "string"], "default": null, "doc": "null for anonymous users"},
+    {"name": "page_url",        "type": "string"},
+    {
+      "name": "page_type",
+      "type": {
+        "type": "enum",
+        "name": "PageType",
+        "symbols": ["HOME", "CATEGORY", "PRODUCT_DETAIL", "CART", "CHECKOUT", "ORDER_CONFIRMATION", "SEARCH", "PROFILE"]
+      }
+    },
+    {"name": "referrer_url",      "type": ["null", "string"], "default": null},
+    {"name": "product_id",        "type": ["null", "string"], "default": null, "doc": "Only populated for PRODUCT_DETAIL"},
+    {"name": "search_query",      "type": ["null", "string"], "default": null, "doc": "Only populated for SEARCH"},
+    {
+      "name": "device_type",
+      "type": {
+        "type": "enum",
+        "name": "PageviewDeviceType",
+        "symbols": ["MOBILE", "DESKTOP", "TABLET"]
+      }
+    },
+    {"name": "user_agent",       "type": "string"},
+    {"name": "ip_address",       "type": "string"},
+    {"name": "duration_seconds", "type": ["null", "int"], "default": null},
+    {
+      "name": "metadata",
+      "type": {"type": "map", "values": "string"},
+      "default": {}
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-version: "3.8"
 
 x-airflow-common: &airflow-common
   build:
@@ -550,6 +549,37 @@ services:
       timeout: 5s
       retries: 5
       start_period: 20s
+
+  producer:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/producer/Dockerfile
+    container_name: streamflow-producer
+    hostname: producer
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP_SERVERS}
+      SCHEMA_REGISTRY_URL: ${SCHEMA_REGISTRY_URL}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_SOURCE_DB: ${POSTGRES_SOURCE_DB}
+      PRODUCER_INTERVAL_SECONDS: "0.1"
+    volumes:
+      - ./producer:/app
+    networks:
+      - streamflow-network
+    depends_on:
+      kafka:
+        condition: service_healthy
+      schema-registry:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    profiles:
+      - producer
 
 volumes:
   zookeeper-data:

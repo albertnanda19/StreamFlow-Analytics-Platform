@@ -1,102 +1,56 @@
-import os
-import time
-import uuid
-import json
-import random
-import logging
-from datetime import datetime, timezone
+import signal
+import threading
 
-from faker import Faker
-from confluent_kafka import Producer
-from confluent_kafka.schema_registry import SchemaRegistryClient
-from dotenv import load_dotenv
+from cdc_simulator import CDCSimulator
+from event_producer import EcommerceEventProducer, _parse_args
+from utils import get_logger, load_env
 
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-logger = logging.getLogger(__name__)
-
-fake = Faker()
-
-KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:29092")
-SCHEMA_REGISTRY_URL = os.getenv("SCHEMA_REGISTRY_URL", "http://localhost:8081")
-
-PRODUCTS = [
-    {"id": str(uuid.uuid4()), "name": "Headphones", "category": "Electronics", "price": 299.99},
-    {"id": str(uuid.uuid4()), "name": "Smart TV", "category": "Electronics", "price": 799.99},
-    {"id": str(uuid.uuid4()), "name": "Office Chair", "category": "Furniture", "price": 449.99},
-    {"id": str(uuid.uuid4()), "name": "Running Shoes", "category": "Sports", "price": 149.99},
-    {"id": str(uuid.uuid4()), "name": "Coffee Maker", "category": "Kitchen", "price": 89.99},
-]
-
-COUNTRIES = ["US", "UK", "DE", "CA", "FR", "JP", "AU", "SG", "BR", "IN"]
-SEGMENTS  = ["bronze", "silver", "gold", "platinum"]
-STATUSES  = ["pending", "confirmed", "shipped", "delivered", "cancelled"]
+logger = get_logger(__name__)
 
 
-def delivery_report(err, msg):
-    if err:
-        logger.error("Delivery failed for %s: %s", msg.key(), err)
+def main():
+    args = _parse_args()
+    cfg  = load_env()
+
+    pg_dsn = (
+        f"host={cfg['POSTGRES_HOST']} port={cfg['POSTGRES_PORT']} "
+        f"dbname={cfg['POSTGRES_SOURCE_DB']} "
+        f"user={cfg['POSTGRES_USER']} password={cfg['POSTGRES_PASSWORD']}"
+    )
+
+    cdc = CDCSimulator(conn_string=pg_dsn, interval_seconds=30.0)
+    cdc.start()
+    logger.info("CDC simulator started as background thread")
+
+    producer = EcommerceEventProducer(
+        bootstrap_servers=cfg["KAFKA_BOOTSTRAP_SERVERS"],
+        schema_registry_url=cfg["SCHEMA_REGISTRY_URL"],
+        postgres_conn_string=pg_dsn,
+        events_per_second=args.eps,
+    )
+
+    def _shutdown(signum, frame):
+        logger.info("Shutting down (signal %d)...", signum)
+        cdc.stop()
+        producer._stop_event.set()
+
+    signal.signal(signal.SIGINT,  _shutdown)
+    signal.signal(signal.SIGTERM, _shutdown)
+
+    if args.mode == "burst":
+        logger.info("BURST mode: 5x rate for 60s")
+        producer.run(duration_seconds=60, rate_multiplier=5.0)
+        if not producer._stop_event.is_set():
+            producer.run(duration_seconds=args.duration, rate_multiplier=1.0)
+    elif args.mode == "slow":
+        producer.run(duration_seconds=args.duration, rate_multiplier=0.5)
     else:
-        logger.debug("Delivered %s to %s [%d]", msg.key(), msg.topic(), msg.partition())
+        producer.run(duration_seconds=args.duration, rate_multiplier=1.0)
 
-
-def build_producer() -> Producer:
-    return Producer({
-        "bootstrap.servers": KAFKA_BOOTSTRAP_SERVERS,
-        "acks": "all",
-        "enable.idempotence": True,
-        "linger.ms": 10,
-        "batch.size": 32768,
-        "compression.type": "snappy",
-    })
-
-
-def generate_order_event() -> dict:
-    product = random.choice(PRODUCTS)
-    quantity = random.randint(1, 5)
-    return {
-        "event_id":         str(uuid.uuid4()),
-        "order_id":         str(uuid.uuid4()),
-        "user_id":          str(uuid.uuid4()),
-        "product_id":       product["id"],
-        "event_type":       "order_created",
-        "status":           random.choice(STATUSES),
-        "quantity":         quantity,
-        "unit_price":       product["price"],
-        "total_amount":     round(product["price"] * quantity, 2),
-        "country":          random.choice(COUNTRIES),
-        "user_segment":     random.choice(SEGMENTS),
-        "category":         product["category"],
-        "product_name":     product["name"],
-        "event_timestamp":  datetime.now(timezone.utc).isoformat(),
-    }
-
-
-def run():
-    producer = build_producer()
-    topic = "streamflow.orders.events"
-    interval_seconds = float(os.getenv("PRODUCER_INTERVAL_SECONDS", "0.5"))
-
-    logger.info("Starting event producer → topic: %s", topic)
-
-    try:
-        while True:
-            event = generate_order_event()
-            producer.produce(
-                topic=topic,
-                key=event["order_id"],
-                value=json.dumps(event).encode("utf-8"),
-                callback=delivery_report,
-            )
-            producer.poll(0)
-            time.sleep(interval_seconds)
-    except KeyboardInterrupt:
-        logger.info("Shutting down producer...")
-    finally:
-        producer.flush(30)
-        logger.info("Producer closed.")
+    cdc.stop()
+    cdc.join(timeout=10)
+    logger.info("All done.")
 
 
 if __name__ == "__main__":
-    run()
+    main()
