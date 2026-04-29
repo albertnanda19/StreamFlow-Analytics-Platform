@@ -3,24 +3,40 @@ apiVersion: 1
 datasources:
   - name: ClickHouse
     type: grafana-clickhouse-datasource
-    uid: clickhouse-streamflow
-    access: proxy
+    uid: clickhouse-main
     url: http://clickhouse:8123
     isDefault: true
     jsonData:
       defaultDatabase: analytics
       username: streamflow
-      port: 8123
-      host: clickhouse
-      protocol: native
+      dialTimeout: "10"
+      queryTimeout: "60"
+      tlsSkipVerify: true
     secureJsonData:
       password: streamflow123
 
   - name: Prometheus
     type: prometheus
-    uid: prometheus-streamflow
-    access: proxy
+    uid: prometheus-main
     url: http://prometheus:9090
-    isDefault: false
+    access: proxy
     jsonData:
-      timeInterval: 15s
+      httpMethod: POST
+      prometheusType: Prometheus
+      prometheusVersion: "2.47.0"
+
+  - name: PostgreSQL
+    type: postgres
+    uid: postgres-main
+    url: postgres:5432
+    database: streamflow_source
+    user: streamflow
+    access: proxy
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 14400
+      postgresVersion: 1500
+    secureJsonData:
+      password: streamflow123

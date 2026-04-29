@@ -1,0 +1,75 @@
+{
+  "__inputs": [{"name": "DS_CLICKHOUSE", "label": "ClickHouse", "type": "datasource", "pluginId": "grafana-clickhouse-datasource"}, {"name": "DS_PROMETHEUS", "label": "Prometheus", "type": "datasource", "pluginId": "prometheus"}, {"name": "DS_POSTGRESQL", "label": "PostgreSQL", "type": "datasource", "pluginId": "postgres"}],
+  "__requires": [{"type": "grafana", "id": "grafana", "name": "Grafana", "version": "10.0.0"}],
+  "annotations": {"list": []},
+  "description": "StreamFlow Analytics — Data Pipeline Monitoring",
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "id": 1, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "type": "timeseries", "title": "Kafka Consumer Lag Over Time",
+      "datasource": {"type": "prometheus", "uid": "prometheus-main"},
+      "alert": {"conditions": [{"evaluator": {"params": [50000], "type": "gt"}, "operator": {"type": "and"}, "query": {"params": ["A", "5m", "now"]}, "reducer": {"params": [], "type": "avg"}, "type": "query"}], "executionErrorState": "alerting", "name": "Kafka Lag Alert", "noDataState": "no_data"},
+      "options": {"legend": {"calcs": ["max", "last"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2, "fillOpacity": 10}, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 10000}, {"color": "red", "value": 50000}]}}},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus-main"}, "expr": "kafka_consumer_group_lag{group=~\"spark-.*\"}", "legendFormat": "{{group}} - {{topic}}", "refId": "A"}]
+    },
+    {
+      "id": 2, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "type": "timeseries", "title": "Spark Streaming — Rows Processed/sec",
+      "datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"},
+      "options": {"legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "desc"}},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2, "fillOpacity": 15}, "unit": "rps"}},
+      "targets": [
+        {"datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"}, "rawSql": "SELECT toStartOfMinute(ingestion_timestamp) AS time, count() / 60 AS rows_per_sec, 'orders' AS stream FROM bronze.orders WHERE ingestion_timestamp >= now() - INTERVAL 6 HOUR GROUP BY time ORDER BY time", "refId": "A", "format": "time_series"},
+        {"datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"}, "rawSql": "SELECT toStartOfMinute(ingestion_timestamp) AS time, count() / 60 AS rows_per_sec, 'pageviews' AS stream FROM bronze.pageviews WHERE ingestion_timestamp >= now() - INTERVAL 6 HOUR GROUP BY time ORDER BY time", "refId": "B", "format": "time_series"}
+      ]
+    },
+    {
+      "id": 3, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "type": "heatmap", "title": "Airflow DAG Run History (7d)",
+      "datasource": {"type": "postgres", "uid": "postgres-main"},
+      "options": {"calculate": false, "cellGap": 1, "color": {"exponent": 0.5, "fill": "#b4ff00", "mode": "scheme", "reverse": false, "scale": "exponential", "scheme": "Greens", "steps": 128}, "exemplars": {"color": "rgba(255,0,255,0.7)"}, "filterValues": {"le": 1e-9}, "legend": {"show": true}, "rowsFrame": {"layout": "auto"}, "tooltip": {"show": true, "yHistogram": false}, "yAxis": {"axisPlacement": "left", "decimals": 0, "reverse": false, "unit": "short"}},
+      "targets": [{"datasource": {"type": "postgres", "uid": "postgres-main"}, "rawSql": "SELECT date_trunc('hour', execution_date) AS time, count(*) AS value FROM pipeline_runs WHERE execution_date >= NOW() - INTERVAL '7 days' GROUP BY time ORDER BY time", "refId": "A", "format": "time_series"}]
+    },
+    {
+      "id": 4, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "type": "timeseries", "title": "Data Quality Score Over Time",
+      "datasource": {"type": "postgres", "uid": "postgres-main"},
+      "alert": {"conditions": [{"evaluator": {"params": [90], "type": "lt"}, "operator": {"type": "and"}, "query": {"params": ["A", "10m", "now"]}, "reducer": {"params": [], "type": "avg"}, "type": "query"}], "name": "DQ Score Below 90%", "noDataState": "no_data"},
+      "options": {"legend": {"calcs": ["mean", "last"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2}, "max": 100, "min": 0, "unit": "percent", "thresholds": {"mode": "absolute", "steps": [{"color": "red", "value": null}, {"color": "yellow", "value": 90}, {"color": "green", "value": 99}]}}},
+      "targets": [{"datasource": {"type": "postgres", "uid": "postgres-main"}, "rawSql": "SELECT run_time AS time, checkpoint_name, success_pct AS value FROM gx_validation_results WHERE run_time >= NOW() - INTERVAL '7 days' ORDER BY run_time", "refId": "A", "format": "time_series"}]
+    },
+    {
+      "id": 5, "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "type": "timeseries", "title": "Bronze Table Row Count Growth",
+      "datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"},
+      "options": {"legend": {"calcs": ["last"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "single", "sort": "none"}},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"fillOpacity": 20, "lineWidth": 2}, "unit": "short", "displayName": "Bronze Orders Count"}},
+      "targets": [{"datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"}, "rawSql": "SELECT toStartOfHour(ingestion_timestamp) AS time, count() AS row_count FROM bronze.orders WHERE ingestion_timestamp >= now() - INTERVAL 48 HOUR GROUP BY time ORDER BY time", "refId": "A", "format": "time_series"}]
+    },
+    {
+      "id": 6, "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "type": "timeseries", "title": "End-to-End Pipeline Latency (sec)",
+      "datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"},
+      "options": {"legend": {"calcs": ["mean", "max", "p95"], "displayMode": "table", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"lineWidth": 2, "fillOpacity": 10}, "unit": "s", "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 15}, {"color": "red", "value": 30}]}}},
+      "targets": [
+        {"datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"}, "rawSql": "SELECT toStartOfFiveMinutes(ingestion_timestamp) AS time, avg(dateDiff('second', event_timestamp, ingestion_timestamp)) AS avg_latency_sec FROM bronze.orders WHERE ingestion_timestamp >= now() - INTERVAL 24 HOUR GROUP BY time ORDER BY time", "refId": "A", "format": "time_series", "legendFormat": "avg latency"},
+        {"datasource": {"type": "grafana-clickhouse-datasource", "uid": "clickhouse-main"}, "rawSql": "SELECT toStartOfFiveMinutes(ingestion_timestamp) AS time, quantile(0.95)(dateDiff('second', event_timestamp, ingestion_timestamp)) AS p95_latency_sec FROM bronze.orders WHERE ingestion_timestamp >= now() - INTERVAL 24 HOUR GROUP BY time ORDER BY time", "refId": "B", "format": "time_series", "legendFormat": "p95 latency"}
+      ]
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 38,
+  "tags": ["streamflow", "pipeline", "monitoring", "ops"],
+  "time": {"from": "now-6h", "to": "now"},
+  "timezone": "Asia/Jakarta",
+  "title": "StreamFlow — Data Pipeline Monitoring",
+  "uid": "streamflow-pipeline-002",
+  "version": 1
+}

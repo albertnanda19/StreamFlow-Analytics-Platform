@@ -1,0 +1,109 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: StreamFlow Pipeline Alerts
+    folder: StreamFlow Alerting
+    interval: 1m
+    rules:
+
+      - uid: pipeline-data-stale
+        title: Pipeline Data Stale
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 7200
+              to: 0
+            datasourceUid: clickhouse-main
+            model:
+              rawSql: >
+                SELECT
+                  if(
+                    max(ingestion_timestamp) < now() - INTERVAL 2 HOUR,
+                    1,
+                    0
+                  ) AS is_stale
+                FROM bronze.orders
+              format: table
+        noDataState: Alerting
+        execErrState: Alerting
+        for: 5m
+        annotations:
+          summary: "No new orders ingested in last 2 hours"
+          description: "Check Spark streaming job and Kafka producer. Last ingestion: {{ $values.A.Value }}"
+          runbook_url: "http://localhost:8085"
+        labels:
+          severity: critical
+          team: data-engineering
+
+      - uid: high-invalid-rate
+        title: High Invalid Rate in Bronze
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: clickhouse-main
+            model:
+              rawSql: >
+                SELECT
+                  countIf(is_valid = false) / count() AS invalid_rate
+                FROM bronze.orders
+                WHERE ingestion_timestamp >= now() - INTERVAL 1 HOUR
+              format: table
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "More than 10% of bronze orders are invalid"
+          description: "Invalid rate is {{ $values.A.Value | humanizePercentage }} — check schema changes or producer issues"
+        labels:
+          severity: warning
+          team: data-engineering
+
+      - uid: revenue-anomaly
+        title: Revenue Anomaly Detected
+        condition: A
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 3600
+              to: 0
+            datasourceUid: clickhouse-main
+            model:
+              rawSql: >
+                SELECT
+                  if(
+                    toHour(now()) BETWEEN 7 AND 22
+                    AND (
+                      SELECT sum(total_amount)
+                      FROM analytics.orders_realtime
+                      WHERE event_timestamp >= now() - INTERVAL 1 HOUR
+                    ) < (
+                      SELECT avg(hourly_rev) * 0.5
+                      FROM (
+                        SELECT
+                          toStartOfHour(event_timestamp) AS h,
+                          sum(total_amount) AS hourly_rev
+                        FROM analytics.orders_realtime
+                        WHERE event_timestamp BETWEEN now() - INTERVAL 8 DAY
+                                                   AND now() - INTERVAL 1 DAY
+                          AND toHour(event_timestamp) = toHour(now())
+                        GROUP BY h
+                      )
+                    ),
+                    1,
+                    0
+                  ) AS is_anomaly
+              format: table
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: "Revenue is more than 50% below 7-day average"
+          description: "Current hourly revenue is significantly below baseline — possible pipeline issue or external event"
+        labels:
+          severity: warning
+          team: data-engineering
