@@ -1,0 +1,123 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "silver_orders_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1, "max_value": 10000000},
+      "meta": {"notes": "Silver must always have data after dbt run"}
+    },
+    {
+      "expectation_type": "expect_compound_columns_to_be_unique",
+      "kwargs": {"column_list": ["order_id"]},
+      "meta": {"notes": "Silver dedup must eliminate all order_id duplicates"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "order_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_valid_uuid",
+      "kwargs": {"column": "order_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "user_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "user_email"},
+      "meta": {"notes": "All silver orders must have enriched user email"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_match_regex",
+      "kwargs": {
+        "column": "user_email",
+        "regex": "^[a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,}$"
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "user_segment"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "user_segment",
+        "value_set": ["NEW", "REGULAR", "VIP", "UNKNOWN"]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "total_amount"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "total_amount", "min_value": 0, "max_value": 100000000},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "order_item_count", "min_value": 1, "max_value": 50},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "gross_revenue", "min_value": 0, "max_value": 100000000},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_pair_values_a_to_be_greater_than_b",
+      "kwargs": {
+        "column_A": "total_amount",
+        "column_B": "gross_revenue",
+        "or_equal": true,
+        "ignore_row_if": "either_value_is_missing"
+      },
+      "meta": {"notes": "total_amount must always be >= gross_revenue (includes shipping)"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "payment_method",
+        "value_set": ["CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "EWALLET", "COD"]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "device_type",
+        "value_set": ["MOBILE", "DESKTOP", "TABLET"]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "dbt_updated_at"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_revenue_to_match_items",
+      "kwargs": {
+        "tolerance_pct": 0.001
+      },
+      "meta": {"notes": "Cross-table validation: sum(item_revenue) must match gross_revenue within 0.1%"}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.0",
+    "notes": {
+      "format": "markdown",
+      "content": "Silver orders expectation suite — validates deduplicated, enriched order data post-dbt"
+    }
+  }
+}

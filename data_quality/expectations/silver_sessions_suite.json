@@ -1,0 +1,104 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "silver_sessions_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1, "max_value": 50000000},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_compound_columns_to_be_unique",
+      "kwargs": {"column_list": ["session_id"]},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "session_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "session_start"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "session_duration_seconds",
+        "min_value": 0,
+        "max_value": 86400
+      },
+      "meta": {"notes": "Max 24-hour session duration"}
+    },
+    {
+      "expectation_type": "expect_column_median_to_be_between",
+      "kwargs": {
+        "column": "session_duration_seconds",
+        "min_value": 10,
+        "max_value": 3600
+      },
+      "meta": {"notes": "Median session: 10 seconds to 1 hour"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "page_count",
+        "min_value": 1,
+        "max_value": 500
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {
+        "column": "page_count",
+        "min_value": 1,
+        "max_value": 20
+      },
+      "meta": {"notes": "Average pages per session sanity check"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "is_bounce",
+        "value_set": [true, false]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {
+        "column": "is_bounce",
+        "min_value": 0.2,
+        "max_value": 0.8
+      },
+      "meta": {"notes": "Bounce rate expected between 20% and 80%"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "has_converted",
+        "value_set": [true, false]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {
+        "column": "has_converted",
+        "min_value": 0.01,
+        "max_value": 0.30
+      },
+      "meta": {"notes": "Conversion rate expected between 1% and 30%"}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.0",
+    "notes": {
+      "format": "markdown",
+      "content": "Silver sessions suite — validates session aggregations including bounce rate and conversion rate bounds"
+    }
+  }
+}

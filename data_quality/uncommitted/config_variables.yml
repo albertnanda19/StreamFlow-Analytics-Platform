@@ -1,0 +1,3 @@
+CLICKHOUSE_GX_CONN: "clickhouse+native://streamflow:streamflow123@clickhouse:9000/analytics"
+SLACK_WEBHOOK_URL: ""
+POSTGRES_CONN_STR: "postgresql://streamflow:streamflow123@postgres:5432/streamflow_source"

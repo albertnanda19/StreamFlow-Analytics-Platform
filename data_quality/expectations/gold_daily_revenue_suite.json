@@ -1,0 +1,80 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "gold_daily_revenue_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1, "max_value": 1000},
+      "meta": {"notes": "Gold daily revenue — reasonable day-dimension count"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "revenue_date"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {"column": "revenue_date"},
+      "meta": {"notes": "One row per day"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "total_revenue"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "total_revenue",
+        "min_value": 0,
+        "max_value": 10000000000
+      },
+      "meta": {"notes": "IDR 10 billion daily maximum"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "order_count"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "order_count",
+        "min_value": 0,
+        "max_value": 1000000
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "avg_order_value",
+        "min_value": 10000,
+        "max_value": 10000000
+      },
+      "meta": {"notes": "Average order value: IDR 10k-10M sanity bound"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "dod_growth_pct",
+        "min_value": -0.90,
+        "max_value": 10.0
+      },
+      "meta": {"notes": "Day-over-day growth: max +1000%, min -90% (anomaly detection)"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "dbt_updated_at"},
+      "meta": {"notes": "Gold table must be refreshed by dbt"}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.0",
+    "notes": {
+      "format": "markdown",
+      "content": "Gold daily revenue suite — validates aggregated revenue metrics including growth rate anomaly detection"
+    }
+  }
+}

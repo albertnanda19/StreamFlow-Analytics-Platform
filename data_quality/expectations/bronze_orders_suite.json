@@ -1,0 +1,125 @@
+{
+  "data_asset_type": null,
+  "expectation_suite_name": "bronze_orders_suite",
+  "expectations": [
+    {
+      "expectation_type": "expect_table_row_count_to_be_between",
+      "kwargs": {"min_value": 1, "max_value": 10000000},
+      "meta": {"notes": "Sanity row count — alert if zero or impossibly large"}
+    },
+    {
+      "expectation_type": "expect_table_columns_to_match_set",
+      "kwargs": {
+        "column_set": [
+          "event_id", "event_type", "event_timestamp", "order_id",
+          "user_id", "session_id", "total_amount", "payment_method",
+          "device_type", "is_valid", "ingestion_timestamp", "processing_date"
+        ],
+        "exact_match": false
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "event_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_unique",
+      "kwargs": {"column": "event_id"},
+      "meta": {"notes": "No duplicate events allowed in Bronze"}
+    },
+    {
+      "expectation_type": "expect_column_value_lengths_to_equal",
+      "kwargs": {"column": "event_id", "value": 36},
+      "meta": {"notes": "UUID is always 36 chars"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "order_id"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_valid_uuid",
+      "kwargs": {"column": "order_id"},
+      "meta": {"notes": "Custom expectation — validates UUID4 format"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "total_amount"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {"column": "total_amount", "min_value": 0, "max_value": 100000000},
+      "meta": {"notes": "IDR 100 million maximum per order"}
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {"column": "total_amount", "min_value": 50000, "max_value": 2000000},
+      "meta": {"notes": "Average order value sanity check — IDR 50k-2M"}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "event_timestamp"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_between",
+      "kwargs": {
+        "column": "event_timestamp",
+        "min_value": "2024-01-01",
+        "max_value": {"$PARAMETER": "tomorrow_date"},
+        "parse_strings_as_datetimes": true
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "payment_method"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "payment_method",
+        "value_set": ["CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "EWALLET", "COD"]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "device_type",
+        "value_set": ["MOBILE", "DESKTOP", "TABLET"]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_not_be_null",
+      "kwargs": {"column": "is_valid"},
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_values_to_be_in_set",
+      "kwargs": {
+        "column": "is_valid",
+        "value_set": [true, false]
+      },
+      "meta": {}
+    },
+    {
+      "expectation_type": "expect_column_mean_to_be_between",
+      "kwargs": {"column": "is_valid", "min_value": 0.90, "max_value": 1.0},
+      "meta": {"notes": "At most 10% invalid records allowed in Bronze"}
+    }
+  ],
+  "ge_cloud_id": null,
+  "meta": {
+    "great_expectations_version": "0.18.0",
+    "notes": {
+      "format": "markdown",
+      "content": "Bronze orders expectation suite — validates raw Kafka-sourced order events"
+    }
+  }
+}

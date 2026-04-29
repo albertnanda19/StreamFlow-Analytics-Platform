@@ -592,6 +592,23 @@ services:
     profiles:
       - producer
 
+  data-docs:
+    image: nginx:alpine
+    container_name: streamflow-data-docs
+    hostname: data-docs
+    ports:
+      - "8085:80"
+    volumes:
+      - ./data_quality/uncommitted/data_docs/local_site:/usr/share/nginx/html:ro
+    networks:
+      - streamflow-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
 volumes:
   zookeeper-data:
     name: streamflow-zookeeper-data
