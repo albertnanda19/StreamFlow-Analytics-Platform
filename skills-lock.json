@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "skills": {
+    "apache-spark-data-processing": {
+      "source": "manutej/luxor-claude-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/luxor-data-engineering/skills/apache-spark-data-processing/SKILL.md",
+      "computedHash": "8760d4f61a9d4c9c30a6d3b4b4ab3ce2f68d7118a9ed3a5bea961e254036ee78"
+    },
+    "apache-superset": {
+      "source": "membranedev/application-skills",
+      "sourceType": "github",
+      "skillPath": "skills/apache-superset/SKILL.md",
+      "computedHash": "2df4726d1a63d5062f9846856fdf2bad3ff68013e6ff1dd1090f4e838268930c"
+    },
+    "attach-db": {
+      "source": "duckdb/duckdb-skills",
+      "sourceType": "github",
+      "skillPath": "skills/attach-db/SKILL.md",
+      "computedHash": "db6a105a312536b75a58616dfd38b46909253c88fcb1ffd58bfc506ffa3065d6"
+    },
+    "chdb-datastore": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/chdb-datastore/SKILL.md",
+      "computedHash": "1d08ca756983b607ff97d1342089e301c98fd7d94ffc9786e89cedb6ca3a1217"
+    },
+    "chdb-sql": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/chdb-sql/SKILL.md",
+      "computedHash": "6377a15564a7ec4fc4ded081728bf1be3eac6e5b72a5a07ce5cb21e7595ff02d"
+    },
+    "clickhouse-architecture-advisor": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/clickhouse-architecture-advisor/SKILL.md",
+      "computedHash": "e3138fddb5d5cb272973f54f79a9525c5c8b47ca3fa31d6285085ce50252ac35"
+    },
+    "clickhouse-best-practices": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/clickhouse-best-practices/SKILL.md",
+      "computedHash": "6032360c02fa6177ac640d1611002e384ef1750835b2207cec0b39c77eb12e59"
+    },
+    "clickhouse-cloud-management": {
+      "source": "terrylica/cc-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/devops-tools/skills/clickhouse-cloud-management/SKILL.md",
+      "computedHash": "66de83fea079caa7dfc6fa599e4e11ed78981f513a324707f7f7779e68400d09"
+    },
+    "clickhouse-io": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/clickhouse-io/SKILL.md",
+      "computedHash": "6a4559a335ba5ca0571a2002735d70497e11464c4cb7ba7c21a3306fb62f2160"
+    },
+    "clickhouse-migrations": {
+      "source": "posthog/posthog",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/clickhouse-migrations/SKILL.md",
+      "computedHash": "03c0919796f909abaae4db43a39bd093c1ca323c3356dabb95f7ada33021bd94"
+    },
+    "clickhouse-pydantic-config": {
+      "source": "terrylica/cc-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/devops-tools/skills/clickhouse-pydantic-config/SKILL.md",
+      "computedHash": "396cdb3a52621673c87eda0c8342f5da6525db9720362d6723ccf89ab7ea07b2"
+    },
+    "clickhouse-query": {
+      "source": "civitai/civitai",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/clickhouse-query/SKILL.md",
+      "computedHash": "791b13c5a0ebb48e6744f537af2d93bfda1f81947348c7714f191984ed045e36"
+    },
+    "clickhouse-query-optimization": {
+      "source": "obsessiondb/clickhouse-skills",
+      "sourceType": "github",
+      "skillPath": "skills/clickhouse-query-optimization/SKILL.md",
+      "computedHash": "374f8461db41e6c65e9d941c2f30fb754500ff598f6e7efead0f9dd306f26d49"
+    },
+    "clickhousectl-cloud-deploy": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/clickhousectl-cloud-deploy/SKILL.md",
+      "computedHash": "dd9f68a15ae36d1000da2b7153980f675a27887f93cf21dd6e0f8d3226dfb9c7"
+    },
+    "clickhousectl-local-dev": {
+      "source": "clickhouse/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/clickhousectl-local-dev/SKILL.md",
+      "computedHash": "a21e2a6f5c7836afa0a782890a7247f90c21a8d735ea985d6910e7ffc172e2bf"
+    },
+    "data-analytics-engineering": {
+      "source": "vasilyu1983/ai-agents-public",
+      "sourceType": "github",
+      "skillPath": "frameworks/shared-skills/skills/data-analytics-engineering/SKILL.md",
+      "computedHash": "3e2b814d8fccba12b1a4c17edff3fd019f9e267cbb4cc30da4205be3e3ae3ab1"
+    },
+    "data-engineer": {
+      "source": "daffy0208/ai-dev-standards",
+      "sourceType": "github",
+      "skillPath": "skills/data-engineer/SKILL.md",
+      "computedHash": "9493bdda7fb243d78efc3c4d53311778220730516cfa346b2c1a76c518983652"
+    },
+    "data-engineering": {
+      "source": "pluginagentmarketplace/custom-plugin-ai-data-scientist",
+      "sourceType": "github",
+      "skillPath": "skills/data-engineering/SKILL.md",
+      "computedHash": "27b9a51c7b61c4170c12c228c9cd2f36ff1609bbbcbadbc1ba4a14436ba61aa4"
+    },
+    "data-engineering-data-driven-feature": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/data-engineering-data-driven-feature/SKILL.md",
+      "computedHash": "8b80c05cc09fa04a6f18e4754ba4e5d1cacc091d4090fc65562557630a6e2e68"
+    },
+    "data-engineering-data-pipeline": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/data-engineering-data-pipeline/SKILL.md",
+      "computedHash": "f39e6e69ed395d4fbeba8c7b28f0afea90d109abe2b6ba6b4ee2acc2630587b1"
+    },
+    "data-warehousing": {
+      "source": "pluginagentmarketplace/custom-plugin-data-engineer",
+      "sourceType": "github",
+      "skillPath": "skills/data-warehousing/SKILL.md",
+      "computedHash": "3bb2dc5585611f498242950722915e692f6a23424d5dbb5c60f0ea91a5f53d9a"
+    },
+    "database-engineering": {
+      "source": "absolutelyskilled/absolutelyskilled",
+      "sourceType": "github",
+      "skillPath": "skills/database-engineering/SKILL.md",
+      "computedHash": "aab927e4c3c3baf9f1b1a12df03e9ca1eb77fe74fd30dd4b6b40bdc8b3feb71c"
+    },
+    "databricks-lakebase": {
+      "source": "databricks/databricks-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/databricks-lakebase/SKILL.md",
+      "computedHash": "3f130988c943c3ed433f9085bdda9ebb976fdf354eea960a640f9b24995450f6"
+    },
+    "databricks-pipelines": {
+      "source": "databricks/databricks-agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/databricks-pipelines/SKILL.md",
+      "computedHash": "cc891874e50bc087db40c62ca89fa244ead7e8df2ef29a432b66d55ce01d8cb0"
+    },
+    "dataform-engineering-fundamentals": {
+      "source": "ihistand/claude-skills",
+      "sourceType": "github",
+      "skillPath": "dataform-engineering-fundamentals/SKILL.md",
+      "computedHash": "2fb39e69e8f36d830a905d671bf94f361ad6814e031d4d99f400efd55d6a7380"
+    },
+    "dataverse-python-advanced-patterns": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dataverse-python-advanced-patterns/SKILL.md",
+      "computedHash": "dd4f65b62c3b702c7dfc14a4e19caaa9ab3515e87a1d7e110482d9ba19469bd0"
+    },
+    "dataverse-python-production-code": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dataverse-python-production-code/SKILL.md",
+      "computedHash": "7299422fdb42dcede45a761921656a6450c476388731288a6e5afb0303f1d25d"
+    },
+    "dataverse-python-quickstart": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dataverse-python-quickstart/SKILL.md",
+      "computedHash": "624493386b6fec1df180fcf5393a408c50f9aeb971580a2fff4dbab21118d682"
+    },
+    "dataverse-python-usecase-builder": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/dataverse-python-usecase-builder/SKILL.md",
+      "computedHash": "f2350c6a1f6c297e910afc0f63b2530b2b76e3880dd6285d1de17d3d082a7a0b"
+    },
+    "duckdb": {
+      "source": "silvainfm/claude-skills",
+      "sourceType": "github",
+      "skillPath": "duckdb/SKILL.md",
+      "computedHash": "e32f3d739753725bdbd752f663482697af85928677243a19608308173bfbae46"
+    },
+    "duckdb-docs": {
+      "source": "duckdb/duckdb-skills",
+      "sourceType": "github",
+      "skillPath": "skills/duckdb-docs/SKILL.md",
+      "computedHash": "6aa9b9d013487eace5398a0e035cf5ee3efd220b34349a46e7c335cf079f7e66"
+    },
+    "fabric-lakehouse": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/fabric-lakehouse/SKILL.md",
+      "computedHash": "6b5cc12c853f8bdd62103d096b0050765a5ff5d6b86dba6a1f35c6e885e1558d"
+    },
+    "geo-compare": {
+      "source": "zubair-trabzada/geo-seo-claude",
+      "sourceType": "github",
+      "skillPath": "skills/geo-compare/SKILL.md",
+      "computedHash": "060b9bd33be88e564a91921dd65feab50c8d38b3638cd1d4d8eddb5d652b7b63"
+    },
+    "kafka-development": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "kafka-development/SKILL.md",
+      "computedHash": "6ec77b8b4ac8624083b5f63e14cbaacdc682118ea0c61390b57bcaba159cfa69"
+    },
+    "kafka-expert": {
+      "source": "personamanagmentlayer/pcl",
+      "sourceType": "github",
+      "skillPath": "stdlib/data/kafka-expert/SKILL.md",
+      "computedHash": "519915cdd67ca9437c5d7c9bb1bd09f2591ea0361042aabd42d4b7a176fc2469"
+    },
+    "kafka-stream-processing": {
+      "source": "manutej/luxor-claude-marketplace",
+      "sourceType": "github",
+      "skillPath": "plugins/luxor-data-engineering/skills/kafka-stream-processing/SKILL.md",
+      "computedHash": "968ec3b7fd21f7ca2443e403e72da5a4d5d195bce34046223b52ccba11f6dbef"
+    },
+    "minio": {
+      "source": "vm0-ai/vm0-skills",
+      "sourceType": "github",
+      "skillPath": "minio/SKILL.md",
+      "computedHash": "f75abfd044e3e0dd6e569d673785183146f0df24e555cdeab502eaf2ca61c1b2"
+    },
+    "minion-orchestrator": {
+      "source": "garrytan/gbrain",
+      "sourceType": "github",
+      "skillPath": "skills/minion-orchestrator/SKILL.md",
+      "computedHash": "da3c2002f121ebccd43003387a728062fc067511688d953c78f6bb67ce37e9c1"
+    },
+    "miniorange": {
+      "source": "membranedev/application-skills",
+      "sourceType": "github",
+      "skillPath": "skills/miniorange/SKILL.md",
+      "computedHash": "655fa9e9d4cdfa5d8714cb3ac2e3cb3d031610d634d4d158b9c05513e4dc5706"
+    },
+    "pyspark-transformer": {
+      "source": "jeremylongshore/claude-code-plugins-plus-skills",
+      "sourceType": "github",
+      "skillPath": "planned-skills/generated/11-data-pipelines/pyspark-transformer/SKILL.md",
+      "computedHash": "317432d0a0e3468a0ed5ece83819c30028bb58614a0d96668aa304d7c7d82571"
+    },
+    "python-executor": {
+      "source": "infsh-skills/skills",
+      "sourceType": "github",
+      "skillPath": "tools/utilities/python-executor/SKILL.md",
+      "computedHash": "52cf09c9aeb3016ef6b0e67d49f920b9bd566a87e51a3b1f611d49b2aa814e4e"
+    },
+    "python-expert": {
+      "source": "shubhamsaboo/awesome-llm-apps",
+      "sourceType": "github",
+      "skillPath": "awesome_agent_skills/python-expert/SKILL.md",
+      "computedHash": "502979957aa63e93b0366d357a241695181c93e739e1bb75b6410505bcc91ba9"
+    },
+    "python-expert-best-practices-code-review": {
+      "source": "wispbit-ai/skills",
+      "sourceType": "github",
+      "skillPath": "skills/python-expert-best-practices-code-review/SKILL.md",
+      "computedHash": "d9acfe21c5b56c6b6cadebd375797deb97f0cc0a0b35cf0a6fa5f37fd03a7b86"
+    },
+    "python-performance-optimization": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/python-development/skills/python-performance-optimization/SKILL.md",
+      "computedHash": "1a7009e7e16fd08c201f4a527a44d4f0d9d1d892b15b92ab3492624b23be22b8"
+    },
+    "python-programming": {
+      "source": "pluginagentmarketplace/custom-plugin-data-engineer",
+      "sourceType": "github",
+      "skillPath": "skills/python-programming/SKILL.md",
+      "computedHash": "30e04ffe0b04366b005b3d6f93e2ff22bccffa37878c57d029273336e05ca4e6"
+    },
+    "senior-data-engineer": {
+      "source": "borghei/claude-skills",
+      "sourceType": "github",
+      "skillPath": "engineering/senior-data-engineer/SKILL.md",
+      "computedHash": "6126daa7e983a9af7b714a12ca82dbdea0cc633a25481ffe0f560223a0550cc0"
+    },
+    "spark-engineer": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "skillPath": "skills/spark-engineer/SKILL.md",
+      "computedHash": "4c66f4104d2780f8075ca8e38084d009dfe7d2f8c594424f570611e50d4943b6"
+    },
+    "vector-database-engineer": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/vector-database-engineer/SKILL.md",
+      "computedHash": "d54e23ba1f14e389ade3ee9f04ab147e98324ce6165bd3020e9a48106c23dd0f"
+    }
+  }
+}

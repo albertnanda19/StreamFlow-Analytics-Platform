@@ -1,0 +1,31 @@
+name: streamflow_dbt
+version: "1.0"
+config-version: 2
+
+profile: streamflow
+
+model-paths: ["models"]
+test-paths:  ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  bronze_schema: bronze
+  silver_schema: silver
+  gold_schema:   gold
+
+models:
+  streamflow_dbt:
+    bronze:
+      +schema:      bronze
+      +materialized: incremental
+      +on_schema_change: append_new_columns
+    silver:
+      +schema:      silver
+      +materialized: incremental
+      +on_schema_change: append_new_columns
+    gold:
+      +schema:      gold
+      +materialized: table

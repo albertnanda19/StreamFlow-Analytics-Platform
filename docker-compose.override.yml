@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  spark-master:
+    environment:
+      SPARK_LOG_LEVEL: WARN
+
+  spark-worker-1:
+    environment:
+      SPARK_LOG_LEVEL: WARN
+
+  spark-worker-2:
+    environment:
+      SPARK_LOG_LEVEL: WARN
+
+  kafka:
+    environment:
+      KAFKA_LOG4J_ROOT_LOGLEVEL: WARN
+      KAFKA_TOOLS_LOG4J_LOGLEVEL: ERROR
+
+  zookeeper:
+    environment:
+      ZOOKEEPER_LOG4J_ROOT_LOGLEVEL: WARN

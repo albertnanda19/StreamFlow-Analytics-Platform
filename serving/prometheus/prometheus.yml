@@ -1,0 +1,32 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: streamflow-platform
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  - job_name: clickhouse
+    static_configs:
+      - targets: ["clickhouse:9363"]
+    metrics_path: /metrics
+
+  - job_name: kafka
+    static_configs:
+      - targets: ["kafka:9997"]
+
+  - job_name: spark-master
+    static_configs:
+      - targets: ["spark-master:8080"]
+
+  - job_name: minio
+    metrics_path: /minio/v2/metrics/cluster
+    static_configs:
+      - targets: ["minio:9000"]
+
+  - job_name: postgres
+    static_configs:
+      - targets: ["postgres:5432"]

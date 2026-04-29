@@ -1,0 +1,51 @@
+{
+  "id": null,
+  "uid": "streamflow-realtime",
+  "title": "StreamFlow - Real-Time Orders",
+  "tags": ["streamflow", "realtime"],
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Total Orders (Last Hour)",
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "datasource": { "uid": "clickhouse-streamflow" },
+      "targets": [
+        {
+          "rawSql": "SELECT count() FROM analytics.orders_realtime WHERE event_timestamp >= now() - INTERVAL 1 HOUR",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Revenue (Last Hour)",
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "datasource": { "uid": "clickhouse-streamflow" },
+      "targets": [
+        {
+          "rawSql": "SELECT round(sum(total_amount), 2) FROM analytics.orders_realtime WHERE event_timestamp >= now() - INTERVAL 1 HOUR",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Orders per Minute",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 4 },
+      "datasource": { "uid": "clickhouse-streamflow" },
+      "targets": [
+        {
+          "rawSql": "SELECT toStartOfMinute(event_timestamp) as time, count() as orders FROM analytics.orders_realtime WHERE event_timestamp >= now() - INTERVAL 1 HOUR GROUP BY time ORDER BY time",
+          "format": "time_series"
+        }
+      ]
+    }
+  ]
+}

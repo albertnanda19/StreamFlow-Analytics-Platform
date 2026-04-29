@@ -1,0 +1,7 @@
+confluent-kafka==2.3.0
+fastavro==1.9.4
+faker==21.0.0
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+requests==2.31.0
+python-dotenv==1.0.0

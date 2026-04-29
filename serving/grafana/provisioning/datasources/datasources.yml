@@ -1,0 +1,26 @@
+apiVersion: 1
+
+datasources:
+  - name: ClickHouse
+    type: grafana-clickhouse-datasource
+    uid: clickhouse-streamflow
+    access: proxy
+    url: http://clickhouse:8123
+    isDefault: true
+    jsonData:
+      defaultDatabase: analytics
+      username: streamflow
+      port: 8123
+      host: clickhouse
+      protocol: native
+    secureJsonData:
+      password: streamflow123
+
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus-streamflow
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
+    jsonData:
+      timeInterval: 15s
