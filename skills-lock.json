@@ -217,6 +217,12 @@
       "skillPath": "plugins/luxor-data-engineering/skills/kafka-stream-processing/SKILL.md",
       "computedHash": "968ec3b7fd21f7ca2443e403e72da5a4d5d195bce34046223b52ccba11f6dbef"
     },
+    "linkedin-posts": {
+      "source": "kostja94/marketing-skills",
+      "sourceType": "github",
+      "skillPath": "skills/platforms/linkedin/SKILL.md",
+      "computedHash": "61e2f085a932d994a149023ce0786235529d6df319c1ce3dddf42560fd97d9e9"
+    },
     "minio": {
       "source": "vm0-ai/vm0-skills",
       "sourceType": "github",

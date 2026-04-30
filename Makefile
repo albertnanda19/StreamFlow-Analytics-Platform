@@ -303,3 +303,26 @@ grafana-setup:
 		echo ""; \
 	done
 	@echo "Dashboards imported."
+
+gx-docs:
+	@echo "Generating Great Expectations Data Docs..."
+	docker run --rm \
+		-v "$(PWD)/data_quality:/gx" \
+		python:3.11-slim \
+		bash -c "pip install great_expectations==0.18.8 -q 2>&1 | tail -1 && python3 -c \"import great_expectations as gx; ctx = gx.get_context(context_root_dir='/gx'); ctx.build_data_docs(); print('Done.')\""
+	docker restart streamflow-data-docs
+	@echo "GX Data Docs available at: http://localhost:8085"
+
+dbt-docs:
+	@echo "Serving dbt Docs on http://localhost:8086 ..."
+	@lsof -ti:8086 | xargs kill -9 2>/dev/null || true
+	cd dbt_project/target && python3 -m http.server 8086 --bind 0.0.0.0
+
+dbt-docs-generate:
+	@echo "Generating dbt Docs (requires dbt-duckdb inside Docker)..."
+	docker run --rm \
+		-v "$(PWD)/dbt_project:/dbt_project" \
+		-w /dbt_project \
+		python:3.11-slim \
+		bash -c "pip install dbt-core dbt-duckdb -q 2>&1 | tail -1 && dbt docs generate --target dev --profiles-dir /dbt_project --no-version-check"
+	@echo "Artifacts written to dbt_project/target/. Run 'make dbt-docs' to serve."
