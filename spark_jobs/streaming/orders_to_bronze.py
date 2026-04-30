@@ -49,9 +49,6 @@ def _validate(df: DataFrame) -> DataFrame:
             & (col("user_id") != "")
             & col("total_amount").isNotNull()
             & (col("total_amount") > 0)
-            & col("event_timestamp").isNotNull()
-            & col("items").isNotNull()
-            & (size(col("items")) > 0)
         ),
     )
 
@@ -99,7 +96,7 @@ def build_stream(spark, deserialize_udf):
         .format("kafka")
         .option("kafka.bootstrap.servers", KAFKA_BOOTSTRAP)
         .option("subscribe", "orders")
-        .option("startingOffsets", "latest")
+        .option("startingOffsets", "earliest")
         .option("kafka.group.id", "spark-orders-bronze")
         .option("failOnDataLoss", "false")
         .option("maxOffsetsPerTrigger", 10000)
@@ -112,7 +109,20 @@ def build_stream(spark, deserialize_udf):
         .filter(col("json_str").isNotNull())
         .withColumn("data", from_json(col("json_str"), ORDER_PLACED_SCHEMA))
         .select(
-            col("data.*"),
+            col("data.event_id"),
+            col("data.event_type"),
+            col("data.order_id"),
+            col("data.user_id"),
+            col("data.session_id"),
+            col("data.total_amount"),
+            col("data.subtotal"),
+            col("data.shipping_fee"),
+            col("data.payment_method"),
+            col("data.platform"),
+            col("data.device_type"),
+            col("data.shipping_address"),
+            col("data.items"),
+            col("data.coupon_code"),
             to_timestamp(expr("CAST(data.event_timestamp / 1000 AS BIGINT)")).alias("event_timestamp"),
             current_timestamp().alias("ingestion_timestamp"),
             col("partition").alias("kafka_partition"),

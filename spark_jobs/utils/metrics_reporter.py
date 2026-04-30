@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import logging
 import os
 import threading
 import time
 from dataclasses import dataclass, field
+from typing import Optional
 
 from pyspark.sql.streaming import StreamingQuery
 
@@ -28,8 +31,8 @@ class StreamingMetricsReporter:
         query: StreamingQuery,
         app_name: str,
         report_interval_seconds: int = 60,
-        webhook_url: str | None = None,
-        pushgateway_url: str | None = None,
+        webhook_url: Optional[str] = None,
+        pushgateway_url: Optional[str] = None,
     ):
         self._query            = query
         self._app_name         = app_name
