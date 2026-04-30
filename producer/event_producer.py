@@ -105,10 +105,11 @@ class EcommerceEventProducer:
             "bootstrap.servers": bootstrap_servers,
             "acks": "all",
             "enable.idempotence": True,
+            "retries": 5,
+            "max.in.flight.requests.per.connection": 5,
             "linger.ms": 5,
             "batch.size": 32768,
             "compression.type": "snappy",
-            "retries": 0,
         })
 
         sr_client = SchemaRegistryClient({"url": schema_registry_url})

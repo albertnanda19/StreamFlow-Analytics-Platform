@@ -1,0 +1,66 @@
+.PHONY: test-unit test-integration test-e2e test-all test-accuracy \
+        test-kafka test-spark test-dbt test-airflow report clean-reports
+
+PYTEST = python -m pytest
+REPORTS_DIR = tests/reports
+
+test-unit:
+	@echo "Running unit tests (no external services required)..."
+	$(PYTEST) tests/unit/ -m "unit" -v --tb=short \
+		--html=$(REPORTS_DIR)/unit_report.html --self-contained-html
+
+test-integration:
+	@echo "Running integration tests (requires all services running)..."
+	$(PYTEST) tests/integration/ -m "integration" -v --tb=short \
+		--timeout=120 \
+		--html=$(REPORTS_DIR)/integration_report.html --self-contained-html
+
+test-e2e:
+	@echo "Running end-to-end tests (requires full pipeline running)..."
+	$(PYTEST) tests/e2e/ -m "e2e" -v --tb=long \
+		--timeout=600 \
+		--html=$(REPORTS_DIR)/e2e_report.html --self-contained-html
+
+test-accuracy:
+	@echo "Running data accuracy tests only..."
+	$(PYTEST) tests/ -m "accuracy" -v --tb=long \
+		--html=$(REPORTS_DIR)/accuracy_report.html --self-contained-html
+
+test-kafka:
+	@echo "Running Kafka tests..."
+	$(PYTEST) tests/ -m "kafka" -v --timeout=60 \
+		--html=$(REPORTS_DIR)/kafka_report.html --self-contained-html
+
+test-spark:
+	@echo "Running Spark tests..."
+	$(PYTEST) tests/ -m "spark" -v --timeout=120 \
+		--html=$(REPORTS_DIR)/spark_report.html --self-contained-html
+
+test-dbt:
+	@echo "Running dbt/ClickHouse tests..."
+	$(PYTEST) tests/ -m "dbt" -v --timeout=60 \
+		--html=$(REPORTS_DIR)/dbt_report.html --self-contained-html
+
+test-airflow:
+	@echo "Running Airflow tests..."
+	$(PYTEST) tests/ -m "airflow" -v --timeout=300 \
+		--html=$(REPORTS_DIR)/airflow_report.html --self-contained-html
+
+test-all:
+	@echo "Running FULL test suite..."
+	$(PYTEST) tests/ -v --tb=short \
+		--timeout=600 \
+		--html=$(REPORTS_DIR)/full_report.html --self-contained-html \
+		--junitxml=$(REPORTS_DIR)/junit.xml
+	@echo ""
+	@echo "Test reports generated in $(REPORTS_DIR)/"
+	@python tests/print_test_summary.py
+
+report:
+	@open $(REPORTS_DIR)/full_report.html 2>/dev/null || \
+	xdg-open $(REPORTS_DIR)/full_report.html 2>/dev/null || \
+	echo "Open $(REPORTS_DIR)/full_report.html in your browser"
+
+clean-reports:
+	rm -rf $(REPORTS_DIR)/*.html $(REPORTS_DIR)/*.xml $(REPORTS_DIR)/coverage/
+	@echo "Reports cleaned."

@@ -5,9 +5,9 @@ include .env
 export
 
 DOCKER_COMPOSE := docker compose
-SERVICE ?= ""
+SERVICE ?=
 EPS     ?= 10
-DURATION ?= ""
+DURATION ?=
 
 .PHONY: help up down restart logs status \
         kafka-topics init-postgres register-schemas register-debezium \
@@ -127,7 +127,7 @@ init-postgres:
 
 register-schemas:
 	@echo "Registering Avro schemas via Python script (Docker)..."
-	$(DOCKER_COMPOSE) run --rm --no-deps \
+	$(DOCKER_COMPOSE) --profile producer run --rm --no-deps \
 		-e KAFKA_BOOTSTRAP_SERVERS=$(KAFKA_BOOTSTRAP_SERVERS) \
 		-e SCHEMA_REGISTRY_URL=$(SCHEMA_REGISTRY_URL) \
 		-e POSTGRES_HOST=$(POSTGRES_HOST) \
@@ -150,7 +150,7 @@ register-debezium:
 
 run-producer:
 	@echo "Starting event producer (Docker, normal mode, EPS=$(EPS))..."
-	$(DOCKER_COMPOSE) run --rm \
+	$(DOCKER_COMPOSE) --profile producer run --rm \
 		-e KAFKA_BOOTSTRAP_SERVERS=$(KAFKA_BOOTSTRAP_SERVERS) \
 		-e SCHEMA_REGISTRY_URL=$(SCHEMA_REGISTRY_URL) \
 		-e POSTGRES_HOST=$(POSTGRES_HOST) \
@@ -163,7 +163,7 @@ run-producer:
 
 run-producer-burst:
 	@echo "Starting event producer (burst mode)..."
-	$(DOCKER_COMPOSE) run --rm \
+	$(DOCKER_COMPOSE) --profile producer run --rm \
 		-e KAFKA_BOOTSTRAP_SERVERS=$(KAFKA_BOOTSTRAP_SERVERS) \
 		-e SCHEMA_REGISTRY_URL=$(SCHEMA_REGISTRY_URL) \
 		-e POSTGRES_HOST=$(POSTGRES_HOST) \
@@ -175,7 +175,7 @@ run-producer-burst:
 
 run-producer-slow:
 	@echo "Starting event producer (slow/test mode)..."
-	$(DOCKER_COMPOSE) run --rm \
+	$(DOCKER_COMPOSE) --profile producer run --rm \
 		-e KAFKA_BOOTSTRAP_SERVERS=$(KAFKA_BOOTSTRAP_SERVERS) \
 		-e SCHEMA_REGISTRY_URL=$(SCHEMA_REGISTRY_URL) \
 		-e POSTGRES_HOST=$(POSTGRES_HOST) \
@@ -227,12 +227,12 @@ producer-local:
 		python main.py --eps $(EPS) --mode $(if $(MODE),$(MODE),normal) \
 		$(if $(DURATION),--duration $(DURATION),)
 
-SPARK_PACKAGES := io.delta:delta-spark_2.12:3.0.0,\
-org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0,\
+SPARK_PACKAGES := io.delta:delta-spark_2.12:3.1.0,\
+org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1,\
 org.apache.hadoop:hadoop-aws:3.3.4,\
 com.amazonaws:aws-java-sdk-bundle:1.12.540,\
 com.clickhouse:clickhouse-jdbc:0.6.0,\
-org.apache.spark:spark-avro_2.12:3.5.0
+org.apache.spark:spark-avro_2.12:3.5.1
 
 SPARK_SUBMIT_FLAGS := \
 	--master spark://spark-master:7077 \
@@ -252,25 +252,25 @@ run-spark-streaming: run-orders-bronze
 
 run-orders-bronze:
 	@echo "Submitting orders_to_bronze streaming job..."
-	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+	$(DOCKER_COMPOSE) exec -d spark-master /opt/spark/bin/spark-submit \
 		$(SPARK_SUBMIT_FLAGS) \
 		/opt/spark_jobs/streaming/orders_to_bronze.py
 
 run-pageviews-bronze:
 	@echo "Submitting pageviews_to_bronze streaming job..."
-	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+	$(DOCKER_COMPOSE) exec -d spark-master /opt/spark/bin/spark-submit \
 		$(SPARK_SUBMIT_FLAGS) \
 		/opt/spark_jobs/streaming/pageviews_to_bronze.py
 
 run-realtime-metrics:
 	@echo "Submitting realtime_metrics streaming job..."
-	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+	$(DOCKER_COMPOSE) exec -d spark-master /opt/spark/bin/spark-submit \
 		$(SPARK_SUBMIT_FLAGS) \
 		/opt/spark_jobs/streaming/realtime_metrics.py
 
 run-inventory-tracker:
 	@echo "Submitting inventory_tracker streaming job..."
-	$(DOCKER_COMPOSE) exec -d spark-master spark-submit \
+	$(DOCKER_COMPOSE) exec -d spark-master /opt/spark/bin/spark-submit \
 		$(SPARK_SUBMIT_FLAGS) \
 		/opt/spark_jobs/streaming/inventory_tracker.py
 

@@ -1,0 +1,173 @@
+name: StreamFlow Test Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements-test.txt
+
+      - name: Install producer package
+        run: pip install -e . || pip install confluent-kafka fastavro psycopg2-binary
+
+      - name: Run unit tests
+        run: |
+          python -m pytest tests/unit/ -m "unit and not spark" \
+            --junitxml=reports/unit.xml \
+            --html=reports/unit_report.html \
+            --self-contained-html \
+            -v --tb=short
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unit-test-results
+          path: reports/
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: unit-tests
+
+    services:
+      zookeeper:
+        image: confluentinc/cp-zookeeper:7.5.0
+        env:
+          ZOOKEEPER_CLIENT_PORT: 2181
+          ZOOKEEPER_TICK_TIME: 2000
+
+      kafka:
+        image: confluentinc/cp-kafka:7.5.0
+        env:
+          KAFKA_BROKER_ID: 1
+          KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+          KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+          KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:29092
+          KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+          KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+          KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+        ports:
+          - 29092:29092
+
+      schema-registry:
+        image: confluentinc/cp-schema-registry:7.5.0
+        env:
+          SCHEMA_REGISTRY_HOST_NAME: schema-registry
+          SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092
+        ports:
+          - 8081:8081
+
+      clickhouse:
+        image: clickhouse/clickhouse-server:23.8
+        env:
+          CLICKHOUSE_USER: streamflow
+          CLICKHOUSE_PASSWORD: streamflow123
+          CLICKHOUSE_DB: analytics
+        ports:
+          - 8123:8123
+          - 9000:9000
+
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: streamflow
+          POSTGRES_PASSWORD: streamflow123
+          POSTGRES_DB: streamflow_source
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      minio:
+        image: minio/minio:latest
+        env:
+          MINIO_ROOT_USER: streamflow
+          MINIO_ROOT_PASSWORD: streamflow123
+        ports:
+          - 9000:9000
+          - 9001:9001
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/minio/health/live"
+          --health-interval 10s
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install -r tests/requirements-test.txt
+
+      - name: Wait for services
+        run: sleep 30
+
+      - name: Create MinIO buckets
+        run: |
+          pip install minio
+          python -c "
+          from minio import Minio
+          client = Minio('localhost:9000', access_key='streamflow', secret_key='streamflow123', secure=False)
+          for bucket in ['bronze', 'silver', 'gold', 'checkpoints']:
+              if not client.bucket_exists(bucket):
+                  client.make_bucket(bucket)
+          "
+
+      - name: Initialize PostgreSQL schema
+        run: |
+          PGPASSWORD=streamflow123 psql -h localhost -p 5433 -U streamflow -d streamflow_source \
+            -f infrastructure/postgres/init.sql || true
+
+      - name: Create Kafka topics
+        run: |
+          docker exec "$(docker ps -qf 'ancestor=confluentinc/cp-kafka:7.5.0')" \
+            kafka-topics --bootstrap-server localhost:9092 \
+            --create --if-not-exists --topic orders --partitions 3 || true
+
+      - name: Run integration tests (fast subset)
+        run: |
+          python -m pytest tests/integration/ \
+            -m "integration and not slow and not airflow and not spark" \
+            --junitxml=reports/integration.xml \
+            --html=reports/integration_report.html \
+            --self-contained-html \
+            -v --tb=short --timeout=60
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: reports/
+
+  lint-and-format:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Check Python syntax
+        run: |
+          python -m py_compile tests/conftest.py
+          find tests/ -name "*.py" -exec python -m py_compile {} \;
+          echo "All Python files are syntactically valid"
